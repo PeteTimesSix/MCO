@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Experiment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Default Experiment Scenario</Name>
+  <Screens>
+    <DisplayScreen>
+      <Text>Hello!</Text>
+    </DisplayScreen>
+    <CommandlineScreen />
+    <DisplayScreen>
+      <Text>And welcome!</Text>
+      <Image>welcome.png</Image>
+    </DisplayScreen>
+    <MultipleChoiceScreen>
+      <Text>Take a pick!</Text>
+      <Choices>
+        <ChoiceItem>
+          <Text>Word</Text>
+        </ChoiceItem>
+        <ChoiceItem>
+          <Text>Image</Text>
+          <ImagePath>icon.png</ImagePath>
+        </ChoiceItem>
+        <ModelChoiceItem>
+          <Text>Model</Text>
+          <ModelPath>model.dat</ModelPath>
+        </ModelChoiceItem>
+      </Choices>
+    </MultipleChoiceScreen>
+	<RatingExperimentScreen>
+      <TaskCount>5</TaskCount>
+      <Models>
+        <ModelGroup Name="Bunny">
+          <Paths>
+            <Directory absolute="false">/data/bunny</Directory>
+          </Paths>
+        </ModelGroup>
+        <ModelGroup Name="Jessi">
+          <Paths>
+            <Directory absolute="false">/data/jessi</Directory>
+          </Paths>
+        </ModelGroup>
+      </Models>
+      <Randomize>true</Randomize>
+    </RatingExperimentScreen>
+    <ComparingExperimentScreen>
+      <TaskCount>5</TaskCount>
+      <Models>
+        <ModelGroup Name="Bunny">
+          <Paths>
+            <Directory absolute="false">/data/bunny</Directory>
+          </Paths>
+        </ModelGroup>
+        <ModelGroup Name="Jessi">
+          <Paths>
+            <Directory absolute="false">/data/jessi</Directory>
+          </Paths>
+        </ModelGroup>
+      </Models>
+      <Randomize>true</Randomize>
+      <IncludeOriginal>false</IncludeOriginal>
+      <OriginalUsageChance>0</OriginalUsageChance>
+      <AllowTrickQuestions>false</AllowTrickQuestions>
+      <AllowRepeats>false</AllowRepeats>
+      <AllowRepeatsFlipped>false</AllowRepeatsFlipped>
+    </ComparingExperimentScreen>
+  </Screens>
+</Experiment>
