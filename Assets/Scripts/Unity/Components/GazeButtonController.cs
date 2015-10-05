@@ -54,7 +54,7 @@ public class GazeButtonController : MonoBehaviour {
     public void MyPointerEnter()
     {
         isGazedOn = true;
-        MonoBehaviour.print("in");
+        //MonoBehaviour.print("in");
     }
 
     public void MyPointerLeave()
@@ -63,7 +63,7 @@ public class GazeButtonController : MonoBehaviour {
         isGazedOn = false;
         isGazeClicked = false;
 
-        MonoBehaviour.print("out");
+        //MonoBehaviour.print("out");
     }
 
     public void lockForTime(float time) 

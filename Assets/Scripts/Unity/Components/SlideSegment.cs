@@ -70,7 +70,7 @@ public class SlideSegment : MonoBehaviour {
     public void MyPointerEnter()
     {
         isGazedOn = true;
-        MonoBehaviour.print("in");
+        //MonoBehaviour.print("in");
     }
 
     public void MyPointerLeave()
@@ -79,7 +79,7 @@ public class SlideSegment : MonoBehaviour {
         isGazedOn = false;
         isGazeClicked = false;
 
-        MonoBehaviour.print("out");
+        //MonoBehaviour.print("out");
     }
 
     public void lockForTime(float time)
