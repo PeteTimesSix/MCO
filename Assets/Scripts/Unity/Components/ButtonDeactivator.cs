@@ -4,6 +4,7 @@ using System.Collections;
 public class ButtonDeactivator : MonoBehaviour {
 
     public DASH_COMPONENT type = DASH_COMPONENT.NONE;
+    public GameObject button;
 
 	// Use this for initialization
 	void Start () {
@@ -12,7 +13,10 @@ public class ButtonDeactivator : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        bool isActive = GlobalStateHolder.activeScreen.dashSetup.isActive(type);
-        this.gameObject.SetActive(isActive);
+        if (GlobalStateHolder.activeScreen != null) 
+        {
+            bool isActive = GlobalStateHolder.activeScreen.dashSetup.isActive(type);
+            button.SetActive(isActive);
+        }      
 	}
 }

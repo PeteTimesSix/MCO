@@ -9,7 +9,8 @@ using System.IO;
  */
 public class UnityInterface : MonoBehaviour {
 
-    public GameObject OVRcamera;
+    public GameObject OVRcamera; 
+    public GameObject OVRcamRig;
 
     public GameObject modelHolder;
 
@@ -32,6 +33,7 @@ public class UnityInterface : MonoBehaviour {
     public GameObject buttonA;
     public GameObject buttonB;
     public GameObject buttonAny;
+    public GameObject slideRating;
 
     internal bool codeDriven = false;
 
@@ -90,7 +92,7 @@ public class UnityInterface : MonoBehaviour {
         //GlobalStateHolder.activeExperiment = MCOExperiment.generateDefault();
         //GlobalStateHolder.activeExperiment.save("default.xml");
         checkCommandline();
-        GlobalStateHolder.activeExperiment = MCOExperiment.generateRecordPlayback(_Constants.defaultFinalRecordingFile + _Constants.recordFileExtension, false);
+        //GlobalStateHolder.activeExperiment = MCOExperiment.generateRecordPlayback(_Constants.defaultFinalRecordingFile + _Constants.recordFileExtension, false);
         GlobalStateHolder.activeScreen = GlobalStateHolder.activeExperiment.Screens[0];
         GlobalStateHolder.activeScreen.jumpedTo(null);
         GlobalStateHolder.activeExperiment.save("latestRun.xml");
@@ -116,9 +118,9 @@ public class UnityInterface : MonoBehaviour {
     {
         if (forceCam) 
         {
-            MonoBehaviour.print("Forcing cam to "+frameData.camPos+" , "+frameData.camRot);
-            OVRcamera.transform.position = frameData.camPos;
-            OVRcamera.transform.rotation = Quaternion.EulerAngles(frameData.camRot);
+            //MonoBehaviour.print("Forcing cam to "+frameData.camPos+" , "+frameData.camRot);
+            OVRcamRig.transform.position = frameData.camPos;
+            OVRcamRig.transform.rotation = Quaternion.Euler(frameData.camRot);
         }
         if (frameData.textState == RecorderFrame.TEXTSTATE.BIG | frameData.textState == RecorderFrame.TEXTSTATE.BOTH) 
         {
@@ -132,7 +134,17 @@ public class UnityInterface : MonoBehaviour {
         currentRotEuler = frameData.modelRot;
         for (int i = 0; i < frameData.modelIDs.Length; i++)
         {
+            MonoBehaviour.print("Assinging model "+frameData.modelFilenames[i]+" to "+frameData.modelIDs[i]);
             assignSpecific(frameData.modelIDs[i], modelStorage.getModelForcedLoad(frameData.modelFilenames[i]));
+        }
+    }
+
+    void FixedUpdate() 
+    {
+        IMCOScreen screen = GlobalStateHolder.activeScreen;
+        if (GlobalStateHolder.activeScreen != null)
+        {
+            GlobalStateHolder.activeScreen.frameEndfixed();
         }
     }
 	
@@ -144,17 +156,18 @@ public class UnityInterface : MonoBehaviour {
             GlobalStateHolder.activeScreen = GlobalStateHolder.activeScreen.frameEnd();
         }
 
-        if (!codeDriven) 
+        float zoom = 0;
+        float offset = 0;
+
+        if (!codeDriven)
         {
             float horizontal = Input.GetAxis("Mouse X");
             float vertical = Input.GetAxis("Mouse Y");
-            float zoom = 0;
-            float offset = 0;
             if (zoomMode)
             {
                 zoom = Input.GetAxis("Mouse ScrollWheel");
-                currentRotEuler.x += vertical / (2 * Mathf.PI);
-                currentRotEuler.y += horizontal / (2 * Mathf.PI);
+                currentRotEuler.x += vertical * _Constants.rotationRateMultVertical;
+                currentRotEuler.y += horizontal * _Constants.rotationRateMultHorizontal;
                 currentZoom += zoom;
                 if (currentZoom < _Constants.MIN_ZOOM) currentZoom = _Constants.MIN_ZOOM;
                 if (currentZoom > _Constants.MAX_ZOOM) currentZoom = _Constants.MAX_ZOOM;
@@ -162,39 +175,6 @@ public class UnityInterface : MonoBehaviour {
             else
             {
                 offset = Input.GetAxis("Mouse ScrollWheel");
-            }
-            Vector3 offsetVec = new Vector3(0, offset, 0);
-            modelHolder.transform.position = modelHolder.transform.position + offsetVec;
-            Quaternion rotation = Quaternion.identity;
-#pragma warning disable 0618
-            rotation.SetEulerAngles(currentRotEuler);
-#pragma warning restore 0618
-            if (t_original != null)
-            {
-                t_original.transform.rotation = rotation;
-                t_original.transform.localScale = activeScale * (currentZoom);
-            }
-            if (t_copyA != null)
-            {
-                //copyA.transform.rotation = rotation;
-                t_copyA.transform.rotation = Quaternion.FromToRotation(Vector3.forward, Vector3.left) * rotation;
-                t_copyA.transform.localScale = activeScale * (currentZoom);
-            }
-            if (t_copyB != null)
-            {
-                //copyB.transform.rotation = rotation;
-                t_copyB.transform.rotation = Quaternion.FromToRotation(Vector3.forward, Vector3.right) * rotation;
-                t_copyB.transform.localScale = activeScale * (currentZoom);
-            }
-            if (d_original != null)
-            {
-                d_original.transform.rotation = Quaternion.LookRotation(d_original.transform.position) * rotation;
-                d_original.transform.localScale = activeScale * (currentZoom);
-            }
-            if (d_copy != null)
-            {
-                d_copy.transform.rotation = Quaternion.LookRotation(d_copy.transform.position) * rotation;
-                d_copy.transform.localScale = activeScale * (currentZoom);
             }
 
             if (Input.GetButtonDown(_Constants.cancel))
@@ -260,7 +240,39 @@ public class UnityInterface : MonoBehaviour {
             {
                 setStateText("NO STATE");
             }
+        }      
+
+        Vector3 offsetVec = new Vector3(0, offset, 0);
+        modelHolder.transform.position = modelHolder.transform.position + offsetVec;
+        Quaternion rotation = Quaternion.Euler(currentRotEuler);
+        if (t_original != null)
+        {
+            t_original.transform.rotation = rotation;
+            t_original.transform.localScale = activeScale * (currentZoom);
         }
+        if (t_copyA != null)
+        {
+            //copyA.transform.rotation = rotation;
+            t_copyA.transform.rotation = Quaternion.FromToRotation(Vector3.forward, Vector3.left) * rotation;
+            t_copyA.transform.localScale = activeScale * (currentZoom);
+        }
+        if (t_copyB != null)
+        {
+            //copyB.transform.rotation = rotation;
+            t_copyB.transform.rotation = Quaternion.FromToRotation(Vector3.forward, Vector3.right) * rotation;
+            t_copyB.transform.localScale = activeScale * (currentZoom);
+        }
+        if (d_original != null)
+        {
+            d_original.transform.rotation = Quaternion.LookRotation(d_original.transform.position) * rotation;
+            d_original.transform.localScale = activeScale * (currentZoom);
+        }
+        if (d_copy != null)
+        {
+            d_copy.transform.rotation = Quaternion.LookRotation(d_copy.transform.position) * rotation;
+            d_copy.transform.localScale = activeScale * (currentZoom);
+        }
+         
 
         //MonoBehaviour.print(currentZoom);
         

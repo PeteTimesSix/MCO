@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 public class Recorder : MonoBehaviour {
 
-    public GameObject OVRcamera;
     public string recordFile = _Constants.defaultRecordingFile;
     public string finalRecordFile = _Constants.defaultFinalRecordingFile + _Constants.recordFileExtension;
 
@@ -25,15 +24,17 @@ public class Recorder : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
         if (open) 
         {
             RecorderFrame frame = new RecorderFrame();
-            Transform camTransform = OVRcamera.GetComponent<Transform>();
+            Transform camTransform = GlobalStateHolder.unityInterface.OVRcamera.GetComponent<Transform>();
             frame.camPos = camTransform.position;
+            //MonoBehaviour.print(camTransform.name+"(camPos) is "+frame.camPos);
             frame.camRot = camTransform.rotation.eulerAngles;
             frame.modelScale = GlobalStateHolder.unityInterface.getCurrentScale();
             frame.modelRot = GlobalStateHolder.unityInterface.getCurrentRotation();
+            //MonoBehaviour.print("scale " + frame.modelScale + " rot " + frame.modelRot);
 
             Model[] duplet = GlobalStateHolder.unityInterface.getCurrentDuplet();
             if (duplet == null) duplet = new Model[2];
@@ -47,7 +48,8 @@ public class Recorder : MonoBehaviour {
                 if (models[i] != currentModels[i])
                 {
                     modelDiff++;
-                    addUsedModel(currentModels[i]);
+                    if (models[i] != null)
+                        addUsedModel(models[i]);
                 }
             }
             frame.modelIDs = new int[modelDiff];
@@ -69,10 +71,17 @@ public class Recorder : MonoBehaviour {
 
             string stateText = GlobalStateHolder.unityInterface.getStateText();
             string bigText = GlobalStateHolder.unityInterface.getBigText();
-            if (!currentStateText.Equals(stateText))
+            //MonoBehaviour.print("bigText:" + bigText);
+            if ((currentStateText.CompareTo(stateText) != 0))
+            {
                 frame.stateText = stateText;
-            if (!currentBigText.Equals(currentBigText))
+                currentStateText = stateText;
+            }
+            if ((currentBigText.CompareTo(bigText) != 0))
+            {
                 frame.bigText = bigText;
+                currentBigText = bigText;
+            }
             frame.textState = RecorderFrame.TEXTSTATE.NONE;
             if (frame.stateText != null & frame.bigText != null)
                 frame.textState = RecorderFrame.TEXTSTATE.BOTH;
@@ -91,14 +100,20 @@ public class Recorder : MonoBehaviour {
 
     private void addUsedModel(Model model)
     {
-        if (model != null) 
+        MonoBehaviour.print("used model call");
+        if (model != null)
         {
+
             foreach (Model existing in usedModels)
             {
                 if (existing.Path.Equals(model.Path)) return;
             }
             usedModels.Add(model);
-       }       
+        }
+        else 
+        {
+            MonoBehaviour.print("model is null!");
+        }
     }
 
     internal void finalise()
@@ -111,6 +126,7 @@ public class Recorder : MonoBehaviour {
             writer.Write(usedModels.Count);
             foreach (Model model in usedModels)
             {
+                MonoBehaviour.print("Adding used model "+model.Path);
                 writer.Write(model.Path);
             }
             writer.Close();

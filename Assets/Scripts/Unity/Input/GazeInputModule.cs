@@ -25,7 +25,7 @@ public class GazeInputModule : PointerInputModule
 	public override void Process()
 	{ 
 		HandleLook();
-		HandleSelection();
+		//HandleSelection();
 	}
 	public string[] rr;
 
@@ -51,7 +51,7 @@ public class GazeInputModule : PointerInputModule
 		}*/
 	}
 	
-	void HandleSelection()
+	/*void HandleSelection()
 	{
 		if (pointerEventData.pointerEnter != null)
 		{
@@ -76,5 +76,5 @@ public class GazeInputModule : PointerInputModule
 		{
 			currentLookAtHandler = null;
 		}
-	}
+	}*/
 }
